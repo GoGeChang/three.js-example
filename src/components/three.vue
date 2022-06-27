@@ -39,7 +39,15 @@ import { Line2 } from "three/examples/jsm/lines/Line2"; // line2 的mesh
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry"; // line的geometry
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial"; // line2的材质
 import { TransformControls } from "three/examples/jsm/controls/TransformControls"; // 控制插件
-// import * as CANNON from "cannon" // 物理引擎
+// 效果组合器对象
+import EffectComposer from "three/examples/jsm/postprocessing/EffectComposer"
+// 在指定的相机和场景上渲染新的场景，但是不会输出场景
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+// 使用该通道你可以传入一个自定义的着色器，用来生成高级的、自定义的后期处理通道
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+// 形成高亮虚幻的效果
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+
 
 // 基础元素
 let scene,
@@ -73,6 +81,7 @@ let snows = new THREE.Group();
 // 太阳
 let sun;
 
+let composer;
 // 鼠标二维向量用于归一化坐标
 let mouse = new THREE.Vector2();
 
@@ -209,7 +218,7 @@ export default {
       this.initMesh(scene);
 
       this.initLine();
-      
+ 
 
     },
     initLine () {
@@ -287,6 +296,13 @@ export default {
       mesh2.position.y += 4;
       mesh2.position.x += 8;
       mesh2.isMyMesh = true; // 添加自定义属性， 方便后期操作
+
+      
+      let t = new THREE.EdgesGeometry(mesh2.geometry);
+      let line = new THREE.LineSegments(t, new THREE.LineBasicMaterial({color:"red", depthTest:false}));
+      line.position.copy(mesh2.position);
+      scene.add(line);
+
 
       // 模型三
       let geometry3 = new THREE.BoxBufferGeometry(300, 10, 300);
@@ -422,6 +438,8 @@ export default {
     animation() {
       renderer.render(scene, camera);
       cssRender.render(scene, camera);
+
+
 
       // 根据时间来测算动画速度
       // let time = new Date() * this.guiParams.animationSpeed;
